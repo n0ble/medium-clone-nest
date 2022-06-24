@@ -74,6 +74,12 @@ display users
 \du
 ```
 
+display table scheme
+```
+\d {tableName}
+\d users
+```
+
 
 ## Support
 
