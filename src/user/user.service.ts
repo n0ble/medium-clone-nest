@@ -77,4 +77,8 @@ export default class UserService {
     delete user.password;
     return user;
   }
+
+  finById(id: number): Promise<User> {
+    return this.userRepository.findOne(id);
+  }
 }
