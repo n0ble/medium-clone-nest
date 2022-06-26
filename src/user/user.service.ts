@@ -4,8 +4,10 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { User } from './user.entity';
 import { sign } from 'jsonwebtoken';
+import { compare } from 'bcrypt';
 import { JWT_SECRET } from '@app/config';
 import { IUserResponse } from './types/userResponse.interface';
+import { LoginUserDto } from './dto/loginUser.dto';
 
 @Injectable()
 export default class UserService {
@@ -13,6 +15,26 @@ export default class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  private generateJwt(user: User): string {
+    return sign(
+      {
+        id: user.id,
+        username: user.email,
+        email: user.email,
+      },
+      JWT_SECRET,
+    );
+  }
+
+  buildUserResponse(user: User): IUserResponse {
+    return {
+      user: {
+        ...user,
+        token: this.generateJwt(user),
+      },
+    };
+  }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const userByEmail = await this.userRepository.findOne({
@@ -34,23 +56,25 @@ export default class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  private generateJwt(user: User): string {
-    return sign(
+  async loginUser(loginUserDto: LoginUserDto): Promise<User> {
+    const user = await this.userRepository.findOne(
       {
-        id: user.id,
-        username: user.email,
-        email: user.email,
+        email: loginUserDto.email,
       },
-      JWT_SECRET,
+      {
+        select: ['id', 'username', 'email', 'bio', 'image', 'password'],
+      },
     );
-  }
+    const validPassword = await compare(loginUserDto.password, user?.password);
 
-  buildUserResponse(user: User): IUserResponse {
-    return {
-      user: {
-        ...user,
-        token: this.generateJwt(user),
-      },
-    };
+    if (!user || !validPassword) {
+      throw new HttpException(
+        'Credentials are not valid',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    delete user.password;
+    return user;
   }
 }
