@@ -59,6 +59,12 @@ $ npm run test:cov
 ```
 
 ## PSQL
+
+First of all go to the Postgres home directory
+```
+cd /Library/PostgreSQL/14
+```
+
 start psql
 ```
 sudo -u postgres psql
