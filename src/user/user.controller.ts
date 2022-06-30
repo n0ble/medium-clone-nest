@@ -12,8 +12,8 @@ import { CreateUserDto } from './dto/createUser.dto';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { IUserResponse } from './types/userResponse.interface';
 import UserService from './user.service';
-import { User as UserDec } from './decorators/user.decorator';
-import { User } from './user.entity';
+import { User } from './decorators/user.decorator';
+import { UserEntity } from './user.entity';
 import { AuthGuard } from './guards/auth.guard';
 import { UpdateUserDto } from './dto/updateUser.dto';
 
@@ -41,14 +41,14 @@ export class UserController {
 
   @Get('user')
   @UseGuards(AuthGuard)
-  async currentUser(@UserDec() user: User): Promise<IUserResponse> {
+  async currentUser(@User() user: UserEntity): Promise<IUserResponse> {
     return this.userService.buildUserResponse(user);
   }
 
   @Put('user')
   @UseGuards(AuthGuard)
   async updateCurrentUser(
-    @UserDec('id') userId,
+    @User('id') userId,
     @Body('user') updateUserDto: UpdateUserDto,
   ): Promise<IUserResponse> {
     const updatedUser = await this.userService.updateUser(

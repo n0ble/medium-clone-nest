@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 import { sign } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { JWT_SECRET } from '@app/config';
@@ -13,11 +13,11 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 @Injectable()
 export default class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  private generateJwt(user: User): string {
+  private generateJwt(user: UserEntity): string {
     console.log('user', user);
     return sign(
       {
@@ -29,7 +29,7 @@ export default class UserService {
     );
   }
 
-  buildUserResponse(user: User): IUserResponse {
+  buildUserResponse(user: UserEntity): IUserResponse {
     return {
       user: {
         ...user,
@@ -38,7 +38,7 @@ export default class UserService {
     };
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     const userByEmail = await this.userRepository.findOne({
       email: createUserDto.email,
     });
@@ -53,12 +53,12 @@ export default class UserService {
       );
     }
 
-    const newUser = new User();
+    const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
     return this.userRepository.save(newUser);
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<User> {
+  async loginUser(loginUserDto: LoginUserDto): Promise<UserEntity> {
     const user = await this.userRepository.findOne(
       {
         email: loginUserDto.email,
@@ -80,14 +80,14 @@ export default class UserService {
     return user;
   }
 
-  finById(id: number): Promise<User> {
+  finById(id: number): Promise<UserEntity> {
     return this.userRepository.findOne(id);
   }
 
   async updateUser(
     userId: number,
     updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<UserEntity> {
     const user = await this.finById(userId);
 
     if (!user) {
