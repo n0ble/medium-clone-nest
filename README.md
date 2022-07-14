@@ -75,6 +75,11 @@ all DBs
 \l
 ```
 
+connect to the db
+```
+\c mediumclone
+```
+
 display users
 ```
 \du

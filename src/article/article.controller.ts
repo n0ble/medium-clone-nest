@@ -1,7 +1,7 @@
 import { User } from '@app/user/decorators/user.decorator';
 import { AuthGuard } from '@app/user/guards/auth.guard';
 import { UserEntity } from '@app/user/user.entity';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Param, Delete } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/createArticle.dto';
 import { IArticleResponse } from './types/articleResponse.interface';
@@ -21,5 +21,16 @@ export class ArticleController {
       createArticleDto,
     );
     return this.articleService.buildArticleResponse(article);
+  }
+
+  @Get(':slug')
+  async getDetails(@Param('slug') slug: string) {
+    const article = await this.articleService.findBySlug(slug);
+    return this.articleService.buildArticleResponse(article);
+  }
+  @Delete(':slug')
+  @UseGuards(AuthGuard)
+  async deleteArticle(@User('id') currentUserId: number, @Param('slug') slug: string) {
+    return await this.articleService.deleteArticle(slug, currentUserId);
   }
 }
