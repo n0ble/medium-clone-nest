@@ -91,6 +91,11 @@ display table scheme
 \d users
 ```
 
+Toggle expanded display - write columns vertically at the left when you have a lot of data at a column
+```
+\x
+```
+
 
 ## Support
 
